@@ -1,5 +1,5 @@
-import '../../style.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class FarmScreen extends StatelessWidget {
   @override
@@ -8,8 +8,47 @@ class FarmScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Farm'),
       ),
-      body: Container(
-        child: Text('fam screen'),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Rice Growth, Pest Chances, and Diseases',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              height: 300,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: PieChartWidget(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  LegendItem(color: Colors.green, text: 'Rice Growth'),
+                  LegendItem(color: Colors.orange, text: 'Pest Chance'),
+                  LegendItem(color: Colors.red, text: 'Diseases'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Rice Growth and Disease Rates Over Time',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              height: 300,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: BarChartWidget(),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
@@ -52,129 +91,164 @@ class FarmScreen extends StatelessWidget {
       ),
     );
   }
-
-  // Widget _buildPieChart() {
-  //   var data = [
-  //     Task('Task A', 35.8, Colors.blue),
-  //     Task('Task B', 20.3, Colors.red),
-  //     Task('Task C', 10.1, Colors.green),
-  //     Task('Task D', 18.6, Colors.orange),
-  //     Task('Task E', 15.2, Colors.purple),
-  //   ];
-
-  // var series = [
-  //   charts.Series(
-  //     id: 'Tasks',
-  //     data: data,
-  //     domainFn: (Task task, _) => task.name,
-  //     measureFn: (Task task, _) => task.percent,
-  //     colorFn: (Task task, _) => charts.ColorUtil.fromDartColor(task.color),
-  //   ),
-  // ];
-
-  // return Container(
-  //   height: 300,
-  //   padding: EdgeInsets.all(16),
-  //   child: charts.PieChart(
-  //     series,
-  //     animate: true,
-  //   ),
-  // );
 }
 
-// Widget _buildBarChart() {
-//   var data = [
-//     Production('Spring', 50),
-//     Production('Summer', 80),
-//     Production('Autumn', 70),
-//     Production('Winter', 60),
-//   ];
-
-// var series = [
-//   charts.Series(
-//     id: 'Production',
-//     data: data,
-//     domainFn: (Production production, _) => production.season,
-//     measureFn: (Production production, _) => production.production,
-//     colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-//   ),
-// ];
-
-// return Container(
-//   height: 300,
-//   padding: EdgeInsets.all(16),
-//   child: charts.BarChart(
-//     series,
-//     animate: true,
-//   ),
-// );
-//}
-//}
-
-class Task {
-  final String name;
-  final double percent;
-  final Color color;
-
-  Task(this.name, this.percent, this.color);
-}
-
-class Production {
-  final String season;
-  final int production;
-
-  Production(this.season, this.production);
-}
-
-class TopNav extends StatelessWidget {
+class PieChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppStyles.topNavBackgroundColor,
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage(
-                  'assets/profile.jpg', // Replace with user's profile image URL
-                ),
-              ),
-              SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome back',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  Text(
-                    'Mihigo Prince', // Replace with dynamic user name
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+    return PieChart(
+      PieChartData(
+        sections: [
+          PieChartSectionData(
+            color: Colors.green,
+            value: 40,
+            title: '40%',
+            radius: 100,
+            titleStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          PieChartSectionData(
+            color: Colors.orange,
+            value: 30,
+            title: '30%',
+            radius: 100,
+            titleStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          PieChartSectionData(
+            color: Colors.red,
+            value: 30,
+            title: '30%',
+            radius: 100,
+            titleStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ],
+        sectionsSpace: 0,
+        centerSpaceRadius: 0,
+      ),
+    );
+  }
+}
+
+class LegendItem extends StatelessWidget {
+  final Color color;
+  final String text;
+
+  LegendItem({required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          color: color,
+        ),
+        SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(fontSize: 16),
+        ),
+      ],
+    );
+  }
+}
+
+class BarChartWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        barGroups: [
+          BarChartGroupData(
+            x: 1,
+            barRods: [
+              BarChartRodData(toY: 50, color: Colors.green),
+              BarChartRodData(toY: 20, color: Colors.red),
             ],
           ),
-          Row(
-            children: [
-              Icon(Icons.notifications, color: Colors.black),
-              SizedBox(width: 20), // Adjust the width as needed
-              Icon(Icons.more_vert, color: Colors.black),
+          BarChartGroupData(
+            x: 2,
+            barRods: [
+              BarChartRodData(toY: 60, color: Colors.green),
+              BarChartRodData(toY: 15, color: Colors.red),
+            ],
+          ),
+          BarChartGroupData(
+            x: 3,
+            barRods: [
+              BarChartRodData(toY: 55, color: Colors.green),
+              BarChartRodData(toY: 25, color: Colors.red),
+            ],
+          ),
+          BarChartGroupData(
+            x: 4,
+            barRods: [
+              BarChartRodData(toY: 70, color: Colors.green),
+              BarChartRodData(toY: 10, color: Colors.red),
             ],
           ),
         ],
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                const style = TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14);
+                Widget text;
+                switch (value.toInt()) {
+                  case 1:
+                    text = const Text('Day 1', style: style);
+                    break;
+                  case 2:
+                    text = const Text('Day 2', style: style);
+                    break;
+                  case 3:
+                    text = const Text('Day 3', style: style);
+                    break;
+                  case 4:
+                    text = const Text('Day 4', style: style);
+                    break;
+                  default:
+                    text = const Text('', style: style);
+                    break;
+                }
+                return SideTitleWidget(child: text, axisSide: meta.axisSide);
+              },
+              reservedSize: 28,
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                const style = TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14);
+                Widget text;
+                if (value == 0) {
+                  text = const Text('0%', style: style);
+                } else if (value == 50) {
+                  text = const Text('50%', style: style);
+                } else if (value == 70) {
+                  text = const Text('70%', style: style);
+                } else {
+                  text = const Text('', style: style);
+                }
+                return SideTitleWidget(child: text, axisSide: meta.axisSide);
+              },
+              reservedSize: 28,
+              interval: 20,
+            ),
+          ),
+        ),
+        borderData: FlBorderData(
+          show: false,
+        ),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            // tooltipBgColor: Colors.blueGrey,
+          ),
+        ),
       ),
     );
   }

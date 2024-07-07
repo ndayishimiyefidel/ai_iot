@@ -1,28 +1,26 @@
-import '../../style.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../style.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DashboardScreen extends StatelessWidget {
   final String email;
 
   const DashboardScreen({super.key, required this.email});
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else {
-      return 'Good Evening';
-    }
-  }
 
   Future<Map<String, String>> _getUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? 'User';
-    final profileImage =
-        prefs.getString('profileImage') ?? 'assets/profile.jpg';
-    return {'username': username, 'profileImage': profileImage};
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final username = userDoc.get('username') ?? 'User';
+      final profileImage = userDoc.get('profileImage') ?? 'assets/profile.jpg';
+      return {'username': username, 'profileImage': profileImage};
+    } else {
+      return {'username': 'User', 'profileImage': 'assets/profile.jpg'};
+    }
   }
 
   @override
@@ -49,12 +47,9 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
             Padding(
-              padding: EdgeInsets.only(
-                  left: 10.0,
-                  top: 20.0,
-                  bottom: 20.0), // Adjust top and bottom margin as needed
+              padding: EdgeInsets.only(left: 10.0, top: 20.0, bottom: 20.0),
               child: Text(
-                'Today\'s Weathers',
+                'Today\'s Weather',
                 style: AppStyles.greetingTextStyle,
               ),
             ),
@@ -62,7 +57,18 @@ class DashboardScreen extends StatelessWidget {
               alignment: Alignment.center,
               child: WeatherSummary(),
             ),
-            Farm(),
+            Farm(
+              imageUrl: 'bg1.jpg', 
+              description: 'This plant is healthy.',
+            ),
+            Farm(
+              imageUrl: 'bg2.jpg',
+              description: 'This plant has a disease: blight.',
+            ),
+            Farm(
+              imageUrl: 'bg3.jpg',
+              description: 'This plant has a disease: powdery mildew.',
+            ),
           ],
         ),
       ),
@@ -96,7 +102,7 @@ class DashboardScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/camera');
               },
             ),
-            IconButton(
+                IconButton(
               icon: Icon(Icons.account_circle),
               onPressed: () {
                 Navigator.pushNamed(context, '/my_account');
@@ -128,8 +134,7 @@ class TopNav extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundImage:
-                    NetworkImage(profileImage), // Use user's profile image URL
+                backgroundImage: NetworkImage(profileImage), // Use user's profile image URL
               ),
               SizedBox(width: 10),
               Column(
@@ -158,7 +163,14 @@ class TopNav extends StatelessWidget {
             children: [
               Icon(Icons.notifications, color: Colors.black),
               SizedBox(width: 20), // Adjust the width as needed
-              Icon(Icons.more_vert, color: Colors.black),
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                },
+                color: Colors.black,
+              ),
             ],
           ),
         ],
@@ -167,7 +179,36 @@ class TopNav extends StatelessWidget {
   }
 }
 
-class WeatherSummary extends StatelessWidget {
+
+
+
+class WeatherSummary extends StatefulWidget {
+  @override
+  _WeatherSummaryState createState() => _WeatherSummaryState();
+}
+
+class _WeatherSummaryState extends State<WeatherSummary> {
+  Future<Map<String, dynamic>>? _weatherFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _weatherFuture = fetchWeather();
+  }
+
+  Future<Map<String, dynamic>> fetchWeather() async {
+    final apiKey = '9956b1377288ea2cc1ba3db978698eba';
+    final city = "Kigali";
+    final url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric";
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load weather data');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
@@ -179,97 +220,128 @@ class WeatherSummary extends StatelessWidget {
           color: Colors.lightBlue, // Background color
           borderRadius: BorderRadius.circular(10.0),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Kigali, Rwanda',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.0, // Reduced font size
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _weatherFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Failed to load weather data'));
+            } else if (!snapshot.hasData) {
+              return Center(child: Text('No weather data available'));
+            } else {
+              final weatherData = snapshot.data!;
+              final cityName = weatherData['name'];
+              final temp = weatherData['main']['temp'].toString();
+              final humidity = weatherData['main']['humidity'].toString();
+              final weatherMain = weatherData['weather'][0]['main'];
+              final weatherDescription = weatherData['weather'][0]['description'];
+              final iconCode = weatherData['weather'][0]['icon'];
+              final weatherIconUrl = "https://openweathermap.org/img/wn/$iconCode.png";
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$cityName, Rwanda',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.0, // Reduced font size
+                            ),
+                          ),
+                          SizedBox(height: 3.0), // Reduced height
+                          Text(
+                            '02/July/2024', // Replace with actual date
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.0, // Reduced font size
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 3.0), // Reduced height
-                    Text(
-                      '02/July/2024', // Replace with actual date
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0, // Reduced font size
+                      Image.network(
+                        weatherIconUrl, // Weather icon from API
+                        width: 100,
+                        height: 60,
                       ),
-                    ),
-                  ],
-                ),
-                Image.network(
-                  'assets/weather_icon.png', // Replace with actual cloud image asset
-                  width: 100,
-                  height: 60,
-                ),
-              ],
-            ),
-            SizedBox(height: 5.0), // Reduced height
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '25°C',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0, // Reduced font size
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 3.0), // Reduced height
-                    Text(
-                      'Humidity: 60%',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.0, // Reduced font size
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  'Cloudy', // Replace with actual weather condition
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0, // Reduced font size
-                    fontWeight: FontWeight.bold,
+                    ],
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.0), // Reduced height
-            Divider(
-              color: Colors.white,
-              height: 10.0,
-              thickness: 1.0,
-            ),
-            SizedBox(height: 5.0), // Reduced height
-            Text(
-              'Weather condition description or time info', // Replace with actual weather info text
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12.0, // Reduced font size
-              ),
-            ),
-          ],
+                  SizedBox(height: 5.0), // Reduced height
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$temp°C',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0, // Reduced font size
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 3.0), // Reduced height
+                          Text(
+                            'Humidity: $humidity%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.0, // Reduced font size
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        weatherMain,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0, // Reduced font size
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5.0), // Reduced height
+                  Divider(
+                    color: Colors.white,
+                    height: 10.0,
+                    thickness: 1.0,
+                  ),
+                  SizedBox(height: 5.0), // Reduced height
+                  Text(
+                    weatherDescription, // Replace with actual weather info text
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.0, // Reduced font size
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
         ),
       ),
     );
   }
 }
 
+
+
+
+
 class Farm extends StatelessWidget {
+  final String imageUrl;
+  final String description;
+
+  Farm({required this.imageUrl, required this.description});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -286,14 +358,14 @@ class Farm extends StatelessWidget {
           ),
           SizedBox(height: 10.0),
           Image.asset(
-            'assets/farm.jpg', // Replace with your farm image asset
+            imageUrl, // Replace with your farm image asset
             height: 200.0,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
           SizedBox(height: 10.0),
           Text(
-            'This is a description of the farm. Here you can provide more details about the farm and its significance.',
+            description,
             style: TextStyle(fontSize: 16.0),
           ),
         ],
