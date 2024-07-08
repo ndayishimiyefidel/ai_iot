@@ -76,45 +76,51 @@ class CameraScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 5.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.dashboard),
-              onPressed: () {
-                Navigator.pushNamed(context, '/dashboard');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.cloud),
-              onPressed: () {
-                Navigator.pushNamed(context, '/weather');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.agriculture),
-              onPressed: () {
-                Navigator.pushNamed(context, '/farm');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.camera_alt),
-              onPressed: () {
-                // Optional: Navigate to camera screen (self redirect)
-                Navigator.pushNamed(context, '/camera');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.account_circle),
-              onPressed: () {
-                Navigator.pushNamed(context, '/my_account');
-              },
-            ),
-          ],
-        ),
+      bottomNavigationBar: BottomNav(),
+    );
+  }
+}
+
+class BottomNav extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      shape: CircularNotchedRectangle(),
+      notchMargin: 5.0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.dashboard),
+            onPressed: () {
+              Navigator.pushNamed(context, '/dashboard');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.cloud),
+            onPressed: () {
+              Navigator.pushNamed(context, '/weather');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.agriculture),
+            onPressed: () {
+              Navigator.pushNamed(context, '/farm');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.camera_alt),
+            onPressed: () {
+              Navigator.pushNamed(context, '/camera');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.pushNamed(context, '/my_account');
+            },
+          ),
+        ],
       ),
     );
   }

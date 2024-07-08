@@ -1,12 +1,12 @@
 import 'login_screen.dart';
-import 'welcome_screen.dart';
 import 'package:flutter/material.dart';
-import 'screens/farm/farm_screen.dart';
+import 'screens/farm/farm_screen.dart'; // Make sure FarmScreen is imported
 import 'screens/camera/camera_screen.dart';
 import 'screens/weather/weather_screen.dart';
 import 'package:ai_iot/screens/on_boarding.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'screens/my_account/my_account_screen.dart';
 import 'register.dart'; // Import the register screen
 import './firebase_options.dart'; // Import the Firebase options file
@@ -15,8 +15,7 @@ import 'screens/camera/camera_capture_screen.dart'; // Import the new camera cap
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: firebaseOptions); // Initialize Firebase with options
+  await Firebase.initializeApp(options: firebaseOptions); // Initialize Firebase with options
   runApp(MyApp());
 }
 
@@ -29,22 +28,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/', // Set the initial route to '/register'
+      initialRoute: '/dashboard', // Set the initial route to '/dashboard'
       routes: {
         '/': (context) => OnBoardingPage(),
         '/login': (context) => LoginScreen(),
-        '/register': (context) =>
-            RegisterScreen(), // Ensure RegisterScreen route is properly defined
+        '/register': (context) => RegisterScreen(), // Ensure RegisterScreen route is properly defined
         '/dashboard': (context) => DashboardScreen(
               email: '',
             ),
         '/weather': (context) => WeatherScreen(),
-        '/farm': (context) => FarmScreen(),
+        '/farm': (context) => FarmScreen(), // Update to use FarmScreen
         '/camera': (context) => CameraScreen(),
         '/my_account': (context) => MyAccountScreen(),
         '/upload': (context) => UploadScreen(), // Add route for UploadScreen
-        '/camera_capture': (context) =>
-            CameraCaptureScreen(), // Add ro2ute for CameraCaptureScreen
+        '/camera_capture': (context) => CameraCaptureScreen(), // Add route for CameraCaptureScreen
       },
     );
   }
