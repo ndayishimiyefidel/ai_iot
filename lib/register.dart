@@ -99,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final List<DocumentSnapshot> documents = result.docs;
         if (documents.isEmpty) {
           FirebaseFirestore.instance
-              .collection("userslist")
+              .collection("Users")
               .doc(firebaseUser!.uid)
               .set({
             "uid": firebaseUser!.uid,

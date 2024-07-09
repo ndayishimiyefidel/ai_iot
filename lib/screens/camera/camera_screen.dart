@@ -46,8 +46,11 @@ class CameraScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      'Images from Database',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Previous Analysis',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -140,9 +143,7 @@ class TopNav extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundImage: AssetImage(
-                  'assets/profile.jpg', // Replace with user's profile image URL
-                ),
+                backgroundImage: AssetImage('assets/profile.jpg'),
               ),
               SizedBox(width: 10),
               Column(

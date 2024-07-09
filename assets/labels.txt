@@ -1,0 +1,8 @@
+0 Bacterial Leaf Blight
+1 Brown Spot
+2 Healthy Rice Leaf
+3 Leaf Blast
+4 Leaf scald
+5 Narrow Brown Leaf Spot
+6 Rice Hispa
+7 Sheath Blight

@@ -85,12 +85,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (user != null) {
         FirebaseFirestore.instance
-            .collection("userlist")
+            .collection("Users")
             .doc(user!.uid)
             .update({"state": 1});
 
         FirebaseFirestore.instance
-            .collection("userlist")
+            .collection("Users")
             .doc(user!.uid)
             .get()
             .then((datasnapshot) async {
@@ -108,9 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading = false;
           });
           Fluttertoast.showToast(
-              msg: "Account created successfully",
-              textColor: Colors.red,
-              fontSize: 18);
+              msg: "Login successfully", textColor: Colors.red, fontSize: 18);
           Route route = MaterialPageRoute(
               builder: (c) => DashboardScreen(
                     email: _emailController.text.toString().trim(),

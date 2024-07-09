@@ -1,26 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../style.dart';
 import 'dart:convert';
+import '../../style.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   final String email;
 
   const DashboardScreen({super.key, required this.email});
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  // Future<Map<String, String>> _getUserInfo() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     final userDoc = await FirebaseFirestore.instance
+  //         .collection('Users')
+  //         .doc(user.uid)
+  //         .get();
+  //     final username = userDoc.get('username') ?? 'User';
+  //     final profileImage = userDoc.get('profileImage') ?? 'assets/profile.jpg';
+  //     return {'username': username, 'profileImage': profileImage};
+  //   } else {
+  //     return {'username': 'User', 'profileImage': 'assets/profile.jpg'};
+  //   }
+  // }
+
   Future<Map<String, String>> _getUserInfo() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final username = userDoc.get('username') ?? 'User';
-      final profileImage = userDoc.get('profileImage') ?? 'assets/profile.jpg';
-      return {'username': username, 'profileImage': profileImage};
-    } else {
-      return {'username': 'User', 'profileImage': 'assets/profile.jpg'};
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    String? email = prefs.getString('email');
+    String? profileImage =
+        prefs.getString('profileImage') ?? 'assets/profile.jpg';
+
+    return {
+      'username': username ?? 'User',
+      'email': email ?? 'example@example.com',
+      'profileImage': profileImage
+    };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserInfo();
   }
 
   @override
@@ -58,15 +86,15 @@ class DashboardScreen extends StatelessWidget {
               child: WeatherSummary(),
             ),
             Farm(
-              imageUrl: 'bg1.jpg', 
+              imageUrl: 'assets/bg1.jpg',
               description: 'This plant is healthy.',
             ),
             Farm(
-              imageUrl: 'bg2.jpg',
+              imageUrl: 'assets/bg2.jpg',
               description: 'This plant has a disease: blight.',
             ),
             Farm(
-              imageUrl: 'bg3.jpg',
+              imageUrl: 'assets/bg3.jpg',
               description: 'This plant has a disease: powdery mildew.',
             ),
           ],
@@ -102,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                 Navigator.pushNamed(context, '/camera');
               },
             ),
-                IconButton(
+            IconButton(
               icon: Icon(Icons.account_circle),
               onPressed: () {
                 Navigator.pushNamed(context, '/my_account');
@@ -134,7 +162,8 @@ class TopNav extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundImage: NetworkImage(profileImage), // Use user's profile image URL
+                backgroundImage:
+                    AssetImage(profileImage), // Use user's profile image URL
               ),
               SizedBox(width: 10),
               Column(
@@ -167,7 +196,8 @@ class TopNav extends StatelessWidget {
                 icon: Icon(Icons.logout),
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
-                  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/login', (route) => false);
                 },
                 color: Colors.black,
               ),
@@ -178,9 +208,6 @@ class TopNav extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class WeatherSummary extends StatefulWidget {
   @override
@@ -199,7 +226,8 @@ class _WeatherSummaryState extends State<WeatherSummary> {
   Future<Map<String, dynamic>> fetchWeather() async {
     final apiKey = '9956b1377288ea2cc1ba3db978698eba';
     final city = "Kigali";
-    final url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric";
+    final url =
+        "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric";
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -235,9 +263,11 @@ class _WeatherSummaryState extends State<WeatherSummary> {
               final temp = weatherData['main']['temp'].toString();
               final humidity = weatherData['main']['humidity'].toString();
               final weatherMain = weatherData['weather'][0]['main'];
-              final weatherDescription = weatherData['weather'][0]['description'];
+              final weatherDescription =
+                  weatherData['weather'][0]['description'];
               final iconCode = weatherData['weather'][0]['icon'];
-              final weatherIconUrl = "https://openweathermap.org/img/wn/$iconCode.png";
+              final weatherIconUrl =
+                  "https://openweathermap.org/img/wn/$iconCode.png";
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,10 +361,6 @@ class _WeatherSummaryState extends State<WeatherSummary> {
     );
   }
 }
-
-
-
-
 
 class Farm extends StatelessWidget {
   final String imageUrl;

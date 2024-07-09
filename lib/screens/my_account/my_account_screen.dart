@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../style.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MyAccountScreen extends StatefulWidget {
   const MyAccountScreen({Key? key}) : super(key: key);
@@ -14,7 +14,8 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   File? _profileImage;
   String _message = '';
 
@@ -28,7 +29,8 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
@@ -94,10 +96,10 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                       radius: 50,
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!)
-                          : AssetImage('assets/profile_placeholder.png')
-                              as ImageProvider,
+                          : AssetImage('assets/profile.jpg') as ImageProvider,
                       child: _profileImage == null
-                          ? Icon(Icons.add_a_photo, size: 50, color: Colors.grey)
+                          ? Icon(Icons.add_a_photo,
+                              size: 50, color: Colors.grey)
                           : null,
                     ),
                   ),
@@ -198,11 +200,8 @@ class TopNav extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage(
-                  'assets/profile.jpg', // Replace with user's profile image URL
-                ),
-              ),
+                  radius: 25,
+                  backgroundImage: AssetImage('assets/profile.jpg')),
               SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

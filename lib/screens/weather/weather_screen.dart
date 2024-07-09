@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import '../../style.dart';
 import 'weather_service.dart';
+import 'package:flutter/material.dart';
 
 class WeatherScreen extends StatefulWidget {
   @override
@@ -22,7 +22,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     });
   }
 
-  List<Map<String, dynamic>> generateWeeklyForecast(Map<String, dynamic> currentWeather) {
+  List<Map<String, dynamic>> generateWeeklyForecast(
+      Map<String, dynamic> currentWeather) {
     List<Map<String, dynamic>> forecast = [];
     double currentTemp = currentWeather['main']['temp'];
     double currentHumidity = currentWeather['main']['humidity'];
@@ -33,7 +34,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
       forecast.add({
         'temp': {'day': (currentTemp + i).toStringAsFixed(1)},
         'humidity': (currentHumidity + i * 2) % 100,
-        'weather': [{'description': currentDescription, 'icon': currentWeather['weather'][0]['icon']}],
+        'weather': [
+          {
+            'description': currentDescription,
+            'icon': currentWeather['weather'][0]['icon']
+          }
+        ],
       });
     }
 
@@ -53,14 +59,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
             TopNav(),
             Padding(
               padding: EdgeInsets.only(left: 10.0, top: 20.0, bottom: 20.0),
-              child: Text('Today\'s Weather', style: AppStyles.greetingTextStyle),
+              child:
+                  Text('Today\'s Weather', style: AppStyles.greetingTextStyle),
             ),
             Align(
               alignment: Alignment.center,
               child: WeatherSummary(weatherData: weatherData),
             ),
             SizedBox(height: 20),
-            Text('Weekly Forecast', style: AppStyles.weatherSummaryTextStyle, textAlign: TextAlign.center),
+            Text('Weekly Forecast',
+                style: AppStyles.weatherSummaryTextStyle,
+                textAlign: TextAlign.center),
             SizedBox(height: 10),
             GridView.builder(
               shrinkWrap: true,
@@ -81,11 +90,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       children: [
                         Text('Day ${index + 1}', style: AppStyles.dayTextStyle),
                         SizedBox(height: 8),
-                        Text('${dayForecast['temp']['day']}°C', style: AppStyles.temperatureTextStyle),
+                        Text('${dayForecast['temp']['day']}°C',
+                            style: AppStyles.temperatureTextStyle),
                         SizedBox(height: 4),
-                        Text('Humidity: ${dayForecast['humidity']}%', style: AppStyles.humidityTextStyle),
+                        Text('Humidity: ${dayForecast['humidity']}%',
+                            style: AppStyles.humidityTextStyle),
                         SizedBox(height: 4),
-                        Image.network('https://openweathermap.org/img/wn/${dayForecast['weather'][0]['icon']}@2x.png', width: 30, height: 30),
+                        Image.network(
+                            'https://openweathermap.org/img/wn/${dayForecast['weather'][0]['icon']}@2x.png',
+                            width: 30,
+                            height: 30),
                       ],
                     ),
                   ),
@@ -151,9 +165,10 @@ class TopNav extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage('assets/profile.jpg'), // Replace with user's profile image URL
-              ),
+                  radius: 25,
+                  backgroundImage: AssetImage(
+                      'assets/profile.jpg') // Replace with user's profile image URL
+                  ),
               SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +292,8 @@ class WeatherSummary extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        weather['weather'][0]['description'], // Replace with actual weather condition
+                        weather['weather'][0][
+                            'description'], // Replace with actual weather condition
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
