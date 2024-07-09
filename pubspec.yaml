@@ -48,7 +48,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/ai_rice_trained_model.tflite
-    - assets/labels.txt
     - assets/
     - lib/style.dart
